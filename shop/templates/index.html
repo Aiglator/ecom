@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Produits</title>
+</head>
+<body>
+    {% include 'nav.html' %}
+
+    <main>
+        <h1>Produits</h1>
+
+        {% if product %}
+            <!-- Détail d'un produit -->
+            <h2>{{ product.name }}</h2>
+            <p><strong>Prix :</strong> {{ product.price }}€</p>
+            <p><strong>Description :</strong> {{ product.description }}</p>
+
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+            {% endif %}
+
+            <!-- Formulaire d'ajout au panier -->
+            <form action="{% url 'add_to_cart' product.id %}" method="post">
+                {% csrf_token %}
+
+                <!-- Sélection de la taille -->
+                <label for="size"><strong>Taille :</strong></label>
+                <select name="size" id="size" required>
+                    {% for size_code, size_label in size_choices %}
+                        <option value="{{ size_code }}">{{ size_label }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Sélection de la quantité -->
+                <label for="quantity"><strong>Quantité :</strong></label>
+                <input type="number" name="quantity" id="quantity" min="1" value="1" required>
+
+                <br><br>
+                <button type="submit">Ajouter au Panier</button>
+            </form>
+
+            <br>
+            <a href="{% url 'index' %}">Retour à la liste des produits</a>
+        {% else %}
+            <!-- Liste des produits -->
+            <ul>
+                {% for product in products %}
+                    <li>
+                        <a href="{% url 'product_detail' product.id %}">
+                            {{ product.name }} - <strong>{{ product.price }}€</strong>
+                        </a>
+                        {% if product.image %}
+                            <br>
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100">
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>Aucun produit disponible.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <hr>
+
+        <!-- Affichage du panier -->
+        <h2>🛒 Mon Panier</h2>
+        {% if cart and cart.total > 0 %}
+            <ul>
+                {% for key, item in cart.items %}
+                    {% if item.id and item.size %}
+                        <li>
+                            {{ item.name }} (Taille: {{ item.size }}) - {{ item.quantity }} * {{ item.price }}€ = <strong>{{ item.total_product_price }}€</strong>
+                            <form action="{% url 'remove_from_cart' item.id item.size %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit">❌ Supprimer</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <p><strong>Total:</strong> {{ cart.total|floatformat:2 }} €</p>
+        {% else %}
+            <p>Votre panier est vide.</p>
+        {% endif %}
+    </main>
+</body>
+</html>
