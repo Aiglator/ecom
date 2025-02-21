@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande</title>
+</head>
+<body>
+    <h1>Finaliser la commande</h1>
+
+    <form action="{% url 'checkout' %}" method="POST">
+        {% csrf_token %}
+        <label>Nom :</label>
+        <input type="text" name="name" required><br><br>
+
+        <label>Prénom :</label>
+        <input type="text" name="surname" required><br><br>
+
+        <label>Adresse de livraison :</label>
+        <input type="text" name="address" required><br><br>
+
+        <label>Numéro de carte bancaire :</label>
+        <input type="text" name="card_number" required><br><br>
+
+        <button type="submit">🛒 Confirmer la commande</button>
+    </form>
+
+    <br>
+    <a href="/">🔙 Retour</a>
+</body>
+</html>

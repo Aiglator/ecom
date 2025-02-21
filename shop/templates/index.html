@@ -8,11 +8,35 @@
 <body>
     {% include 'nav.html' %}
 
+    <!-- 🔍 Formulaire de recherche et filtres -->
+    <form id="filterForm" action="{% url 'index' %}" method="GET">
+        <input type="text" id="search" name="q" placeholder="Rechercher un produit..." value="{{ query }}">
+
+        <label for="min_price">Prix min :</label>
+        <input type="number" id="min_price" name="min_price" value="{{ min_price }}">
+
+        <label for="max_price">Prix max :</label>
+        <input type="number" id="max_price" name="max_price" value="{{ max_price }}">
+
+        <label for="size">Taille :</label>
+        <select name="size" id="size">
+            <option value="">Toutes</option>
+            {% for size_code, size_label in size_choices %}
+                <option value="{{ size_code }}" {% if size_code == size_filter %}selected{% endif %}>
+                    {{ size_label }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">🔍 Filtrer</button>
+        <a href="{% url 'index' %}">🔄 Réinitialiser</a>
+    </form>
+
     <main>
         <h1>Produits</h1>
 
         {% if product %}
-            <!-- Détail d'un produit -->
+            <!-- 🔥 Affichage d'un produit spécifique -->
             <h2>{{ product.name }}</h2>
             <p><strong>Prix :</strong> {{ product.price }}€</p>
             <p><strong>Description :</strong> {{ product.description }}</p>
@@ -24,8 +48,6 @@
             <!-- Formulaire d'ajout au panier -->
             <form action="{% url 'add_to_cart' product.id %}" method="post">
                 {% csrf_token %}
-
-                <!-- Sélection de la taille -->
                 <label for="size"><strong>Taille :</strong></label>
                 <select name="size" id="size" required>
                     {% for size_code, size_label in size_choices %}
@@ -33,7 +55,6 @@
                     {% endfor %}
                 </select>
 
-                <!-- Sélection de la quantité -->
                 <label for="quantity"><strong>Quantité :</strong></label>
                 <input type="number" name="quantity" id="quantity" min="1" value="1" required>
 
@@ -43,35 +64,39 @@
 
             <br>
             <a href="{% url 'index' %}">Retour à la liste des produits</a>
+
         {% else %}
-            <!-- Liste des produits -->
-            <ul>
-                {% for product in products %}
-                    <li>
-                        <a href="{% url 'product_detail' product.id %}">
-                            {{ product.name }} - <strong>{{ product.price }}€</strong>
-                        </a>
-                        {% if product.image %}
-                            <br>
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100">
-                        {% endif %}
-                    </li>
-                {% empty %}
-                    <li>Aucun produit disponible.</li>
-                {% endfor %}
-            </ul>
+            <!-- 📌 Liste des produits filtrés ou recherchés -->
+            {% if products %}
+                <ul>
+                    {% for product in products %}
+                        <li>
+                            <a href="{% url 'index' %}?id={{ product.id }}">
+                                <strong>{{ product.name }}</strong> - {{ product.price }}€
+                            </a>
+                            {% if product.image %}
+                                <br>
+                                <img src="{{ product.image.url }}" width="100" alt="{{ product.name }}">
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucun produit trouvé.</p>
+            {% endif %}
         {% endif %}
 
         <hr>
 
-        <!-- Affichage du panier -->
+        <!-- 🛒 Affichage du panier -->
         <h2>🛒 Mon Panier</h2>
         {% if cart and cart.total > 0 %}
             <ul>
                 {% for key, item in cart.items %}
                     {% if item.id and item.size %}
                         <li>
-                            {{ item.name }} (Taille: {{ item.size }}) - {{ item.quantity }} * {{ item.price }}€ = <strong>{{ item.total_product_price }}€</strong>
+                            {{ item.name }} (Taille: {{ item.size }}) - {{ item.quantity }} * {{ item.price }}€ = 
+                            <strong>{{ item.total_product_price }}€</strong>
                             <form action="{% url 'remove_from_cart' item.id item.size %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit">❌ Supprimer</button>
@@ -81,6 +106,11 @@
                 {% endfor %}
             </ul>
             <p><strong>Total:</strong> {{ cart.total|floatformat:2 }} €</p>
+
+            <!-- ✅ Bouton "Commander" -->
+            <form action="{% url 'checkout' %}" method="GET">
+                <button type="submit">🛒 Commander</button>
+            </form>
         {% else %}
             <p>Votre panier est vide.</p>
         {% endif %}
