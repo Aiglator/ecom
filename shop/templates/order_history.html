@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique des Commandes</title>
+</head>
+<body>
+    {% include 'nav.html' %}
+
+    <h1>Historique des Commandes</h1>
+
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <li>
+                    <h2>Commande du {{ order.created_at|date:"d/m/Y H:i" }}</h2>
+                    <p><strong>Nom :</strong> {{ order.name }} {{ order.surname }}</p>
+                    <p><strong>Adresse :</strong> {{ order.address }}</p>
+
+                    <h3>Articles commandés :</h3>
+                    <ul>
+                        {% for item in order.items.all %}
+                            <li>
+                                {{ item.quantity }} x {{ item.product_name }} (Taille: {{ item.size }}) - 
+                                <strong>{{ item.total_price }}€</strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune commande passée pour le moment.</p>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'index' %}">⬅ Retour à l'accueil</a>
+</body>
+</html>

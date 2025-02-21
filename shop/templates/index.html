@@ -8,7 +8,7 @@
 <body>
     {% include 'nav.html' %}
 
-    <!-- 🔍 Formulaire de recherche et filtres -->
+    <!--  Formulaire de recherche et filtres -->
     <form id="filterForm" action="{% url 'index' %}" method="GET">
         <input type="text" id="search" name="q" placeholder="Rechercher un produit..." value="{{ query }}">
 
@@ -28,7 +28,7 @@
             {% endfor %}
         </select>
 
-        <button type="submit">🔍 Filtrer</button>
+        <button type="submit"> Filtrer</button>
         <a href="{% url 'index' %}">🔄 Réinitialiser</a>
     </form>
 
@@ -36,7 +36,7 @@
         <h1>Produits</h1>
 
         {% if product %}
-            <!-- 🔥 Affichage d'un produit spécifique -->
+            <!--  Affichage d'un produit spécifique -->
             <h2>{{ product.name }}</h2>
             <p><strong>Prix :</strong> {{ product.price }}€</p>
             <p><strong>Description :</strong> {{ product.description }}</p>
@@ -50,7 +50,7 @@
                 {% csrf_token %}
                 <label for="size"><strong>Taille :</strong></label>
                 <select name="size" id="size" required>
-                    {% for size_code, size_label in size_choices %}
+                    {% for size_code, size_label in product.get_available_sizes %}
                         <option value="{{ size_code }}">{{ size_label }}</option>
                     {% endfor %}
                 </select>
@@ -66,7 +66,7 @@
             <a href="{% url 'index' %}">Retour à la liste des produits</a>
 
         {% else %}
-            <!-- 📌 Liste des produits filtrés ou recherchés -->
+            <!--  Liste des produits filtrés ou recherchés -->
             {% if products %}
                 <ul>
                     {% for product in products %}
@@ -88,8 +88,9 @@
 
         <hr>
 
-        <!-- 🛒 Affichage du panier -->
-        <h2>🛒 Mon Panier</h2>
+        <!--  Affichage du panier -->
+        <h2> Mon Panier</h2>
+        <a href="{% url 'order_history' %}" class="btn btn-primary">Historique des commandes</a>
         {% if cart and cart.total > 0 %}
             <ul>
                 {% for key, item in cart.items %}
@@ -107,9 +108,9 @@
             </ul>
             <p><strong>Total:</strong> {{ cart.total|floatformat:2 }} €</p>
 
-            <!-- ✅ Bouton "Commander" -->
+            <!--  Bouton "Commander" -->
             <form action="{% url 'checkout' %}" method="GET">
-                <button type="submit">🛒 Commander</button>
+                <button type="submit"> Commander</button>
             </form>
         {% else %}
             <p>Votre panier est vide.</p>
